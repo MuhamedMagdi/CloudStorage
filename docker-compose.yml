@@ -1,0 +1,26 @@
+version: '3'
+services:
+    server:
+        container_name: server
+        image: server:v1
+        restart: always
+        build: .
+        ports:
+            - 3000:3000
+        links:
+            - mongo
+
+    mongo:
+        container_name: mongo
+        image: mongo:4.4.6
+        ports:
+            - 27017:27017
+        volumes:
+            - mongo-data:/data/db
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: ${MONGODB_USERNAME}
+            MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_PASSWORD}
+
+volumes:
+    mongo-data:
+        driver: local
