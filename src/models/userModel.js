@@ -10,6 +10,11 @@ const userSchema = mongoose.Schema({
         type: String,
         required: [true, 'Please provid your name!'],
     },
+    username: {
+        type: String,
+        required: [true, 'Please provide your username'],
+        unique: true,
+    },
     email: {
         type: String,
         required: [true, 'Please provide your email!'],
@@ -46,7 +51,7 @@ const userSchema = mongoose.Schema({
         default: true,
         select: false,
     },
-});
+}, { collection: 'users'});
 
 userSchema.pre('save', async function (next) {
     if (!this.isModified('password')) {

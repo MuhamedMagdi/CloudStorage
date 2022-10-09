@@ -32,6 +32,7 @@ const createSendToken = (user, statusCode, req, res) => {
 exports.register = catchAsync(async (req, res, next) => {
     const newUser = await User.create({
         name: req.body.name,
+        username: req.body.username,
         email: req.body.email,
         password: req.body.password,
         passwordConfirm: req.body.passwordConfirm,
@@ -40,11 +41,11 @@ exports.register = catchAsync(async (req, res, next) => {
 });
 
 exports.login = catchAsync(async (req, res, next) => {
-    const { email, password } = req.body;
-    if (!email || !password) {
-        return next(new AppError('Please provide email and password', 400));
+    const { username, password } = req.body;
+    if (!username || !password) {
+        return next(new AppError('Please provide username and password', 400));
     }
-    const user = await User.findOne({ email }).select('+password');
+    const user = await User.findOne({ username }).select('+password');
     if (!user || !(await user.correctPassword(password, user.password))) {
         return next(new AppError('Incorrect eamil or password!', 401));
     }
