@@ -5,53 +5,56 @@ const validator = require('validator');
 
 const config = require('./../config');
 
-const userSchema = mongoose.Schema({
-    name: {
-        type: String,
-        required: [true, 'Please provid your name!'],
-    },
-    username: {
-        type: String,
-        required: [true, 'Please provide your username'],
-        unique: true,
-    },
-    email: {
-        type: String,
-        required: [true, 'Please provide your email!'],
-        unique: true,
-        lowercase: true,
-        validate: [validator.isEmail, 'Please provide a valid email!'],
-    },
-    role: {
-        type: String,
-        enum: ['admin', 'user'],
-        default: 'user',
-    },
-    password: {
-        type: String,
-        required: [true, 'Please provide a password!'],
-        minlength: 8,
-        select: false,
-    },
-    passwordConfirm: {
-        type: String,
-        required: [true, 'Please confirm your password!'],
-        validate: {
-            validator: function (el) {
-                return el === this.password;
+const userSchema = mongoose.Schema(
+    {
+        name: {
+            type: String,
+            required: [true, 'Please provid your name!'],
+        },
+        username: {
+            type: String,
+            required: [true, 'Please provide your username'],
+            unique: true,
+        },
+        email: {
+            type: String,
+            required: [true, 'Please provide your email!'],
+            unique: true,
+            lowercase: true,
+            validate: [validator.isEmail, 'Please provide a valid email!'],
+        },
+        role: {
+            type: String,
+            enum: ['admin', 'user'],
+            default: 'user',
+        },
+        password: {
+            type: String,
+            required: [true, 'Please provide a password!'],
+            minlength: 8,
+            select: false,
+        },
+        passwordConfirm: {
+            type: String,
+            required: [true, 'Please confirm your password!'],
+            validate: {
+                validator: function (el) {
+                    return el === this.password;
+                },
+                message: 'Passwords are not the same!',
             },
-            message: 'Passwords are not the same!',
+        },
+        passwordChangedAt: Date,
+        passwordResetToken: String,
+        passwordResetExpires: Date,
+        active: {
+            type: Boolean,
+            default: true,
+            select: false,
         },
     },
-    passwordChangedAt: Date,
-    passwordResetToken: String,
-    passwordResetExpires: Date,
-    active: {
-        type: Boolean,
-        default: true,
-        select: false,
-    },
-}, { collection: 'users'});
+    { collection: 'users' }
+);
 
 userSchema.pre('save', async function (next) {
     if (!this.isModified('password')) {
