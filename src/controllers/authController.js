@@ -169,7 +169,7 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
 
 exports.deactivate = catchAsync(async (req, res, next) => {
     const user = await User.findById(req.user.id).select('+password');
-    if(!user) {
+    if (!user) {
         next(new AppError('User not found', 404));
     }
     user.active = false;
