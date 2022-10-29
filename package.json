@@ -1,7 +1,7 @@
 {
-    "name": "nodejs-express-mongodb-boilerplate",
+    "name": "Express Cloud Storage",
     "version": "1.0.0",
-    "description": "A boilerplate for building a RESTful APIs using Node.js, Express, and Mongoose",
+    "description": "A RESTful firebase cloud storage server implemented with express",
     "main": "src/index.js",
     "scripts": {
         "start": "ENV=prod node .",
@@ -24,7 +24,10 @@
         "jsonwebtoken": "^8.5.1",
         "mongoose": "^6.5.1",
         "morgan": "^1.10.0",
+        "multer": "^1.4.5-lts.1",
         "nodemailer": "^6.7.8",
+        "swagger-ui-express": "^4.5.0",
+        "uuid": "^9.0.0",
         "validator": "^13.7.0",
         "xss-clean": "^0.1.1"
     },
