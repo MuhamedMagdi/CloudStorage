@@ -1,0 +1,745 @@
+{
+    "openapi": "3.0.3",
+    "info": {
+        "title": "Cloud Storage",
+        "description": "This is a simple cloud storage server that allow you to upload and share files using [Firebase CloudStorage](https://firebase.google.com/docs/storage)",
+        "contact": {
+            "email": "m49dii@gmail.com"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "/api/v1"
+        }
+    ],
+    "tags": [
+        {
+            "name": "Authorize",
+            "description": "Everything about Authorization"
+        },
+        {
+            "name": "Storage",
+            "description": "Operations about files"
+        }
+    ],
+    "paths": {
+        "/auth/register": {
+            "post": {
+                "tags": ["Authorize"],
+                "summary": "Register a new user",
+                "description": "Register a new user using `email, username, password` and also set the jwt cookie",
+                "operationId": "RegisterUser",
+                "requestBody": {
+                    "description": "Register a new user",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RegisterUser"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidUser"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid user data"
+                    }
+                }
+            }
+        },
+        "/auth/login": {
+            "post": {
+                "tags": ["Authorize"],
+                "summary": "Login an existing user",
+                "description": "Login an existing user using `username, password` and also set the jwt cookie",
+                "operationId": "LoginUser",
+                "requestBody": {
+                    "description": "Login an existing user",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoginUser"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidUser"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid username or password"
+                    }
+                }
+            }
+        },
+        "/auth/forgot-password": {
+            "post": {
+                "tags": ["Authorize"],
+                "summary": "Forgot password",
+                "description": "Sends verification token to your email to update your password",
+                "operationId": "ForgetPassword",
+                "requestBody": {
+                    "description": "Forgo password",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "m49dii@gmail.com"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Token sent to your email"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Invalid email"
+                    }
+                }
+            }
+        },
+        "/auth/reset-password/{token}": {
+            "post": {
+                "tags": ["Authorize"],
+                "summary": "Reset user's password",
+                "description": "Reset users password based on the provided token",
+                "operationId": "ResetPassowrd",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "path",
+                        "description": "Token provided in your email",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Register a new user",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "password": {
+                                        "type": "string",
+                                        "example": 1234567890
+                                    },
+                                    "passwordConfirm": {
+                                        "type": "string",
+                                        "example": 1234567890
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidUser"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid user data"
+                    },
+                    "404": {
+                        "description": "Invalid token"
+                    }
+                }
+            }
+        },
+        "/auth/update-password": {
+            "patch": {
+                "tags": ["Authorize"],
+                "summary": "Update your password",
+                "description": "To update your password you need to provide your current password and new password",
+                "operationId": "UpdatePassword",
+                "requestBody": {
+                    "description": "Provide your current password and your new password",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "passwordCurrent": {
+                                        "type": "string",
+                                        "example": 1234567890
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": 123456789
+                                    },
+                                    "passwordConfirm": {
+                                        "type": "string",
+                                        "example": 123456789
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidUser"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid user data"
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ]
+            }
+        },
+        "/auth/deactivate": {
+            "delete": {
+                "tags": ["Authorize"],
+                "summary": "Deactivate your account",
+                "operationId": "Deactivate",
+                "responses": {
+                    "204": {
+                        "description": "Successful operation"
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ]
+            }
+        },
+        "/auth/activate": {
+            "post": {
+                "tags": ["Authorize"],
+                "summary": "Activate user",
+                "operationId": "ActivateUser",
+                "requestBody": {
+                    "description": "Activate user",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoginUser"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Your account has been activated"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid username or password"
+                    }
+                }
+            }
+        },
+        "/auth/logout": {
+            "get": {
+                "tags": ["Authorize"],
+                "summary": "Logout user",
+                "operationId": "Logout",
+                "responses": {
+                    "205": {
+                        "description": "Successful operation"
+                    }
+                }
+            }
+        },
+        "/storage/download/{uuid}": {
+            "get": {
+                "tags": ["Storage"],
+                "summary": "Download file by UUID",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "description": "UUID for the file",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Contin the file"
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ]
+            }
+        },
+        "/storage/files": {
+            "post": {
+                "tags": ["Storage"],
+                "summary": "Uploads a file or multiple files.",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "files": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "binary"
+                                        }
+                                    },
+                                    "privacy": {
+                                        "type": "string",
+                                        "enum": ["public", "private"]
+                                    }
+                                },
+                                "required": ["files"]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "file uploaded",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "success": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/File"
+                                                    }
+                                                },
+                                                "fail": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string"
+                                                    },
+                                                    "example": []
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ]
+            },
+            "get": {
+                "tags": ["Storage"],
+                "summary": "Get all files uploaded by you",
+                "responses": {
+                    "200": {
+                        "description": "All your files",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/File"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ]
+            }
+        },
+        "/storage/files/{uuid}": {
+            "get": {
+                "tags": ["Storage"],
+                "summary": "Get file by the UUID",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "description": "UUID for the file",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "File inforamtion",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/File"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "File not found"
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ]
+            },
+            "patch": {
+                "tags": ["Storage"],
+                "summary": "Update file name or privacy",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "description": "UUID for the file",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Provide the fields `name, privacy` you want to update",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Mohamed Magdi Mohamed.pdf"
+                                    },
+                                    "privacy": {
+                                        "type": "string",
+                                        "enum": ["public", "private"]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "File updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/File"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid data"
+                    },
+                    "404": {
+                        "description": "File not found"
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": ["Storage"],
+                "summary": "Delete file",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "description": "UUID for the file",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "File deleted"
+                    },
+                    "404": {
+                        "description": "File not found"
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "RegisterUser": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "example": "Magdi"
+                    },
+                    "username": {
+                        "type": "string",
+                        "example": "m49dii"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "m49dii@gmail.com"
+                    },
+                    "password": {
+                        "type": "string",
+                        "example": 123456789
+                    },
+                    "passwordConfirm": {
+                        "type": "string",
+                        "example": 123456789
+                    }
+                }
+            },
+            "LoginUser": {
+                "type": "object",
+                "properties": {
+                    "username": {
+                        "type": "string",
+                        "example": "m49dii"
+                    },
+                    "password": {
+                        "type": "string",
+                        "example": 123456789
+                    }
+                }
+            },
+            "ValidUser": {
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "type": "string",
+                        "example": "success"
+                    },
+                    "token": {
+                        "type": "string",
+                        "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYzMGE3ODJiYzlmNTJiY2U3OGQ0OWM1MSIsImlhdCI6MTY2MTYzMDUwOCwiZXhwIjoxNjY5NDA2NTA4fQ.e68S0C9Hb62bxa4e_8y9tOKVjL-jUi8QmjfaWDQ920Y"
+                    },
+                    "data": {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "example": "Magdi"
+                            },
+                            "username": {
+                                "type": "string",
+                                "example": "m49dii"
+                            },
+                            "email": {
+                                "type": "string",
+                                "format": "email",
+                                "example": "m49dii@gmail.com"
+                            },
+                            "role": {
+                                "type": "string",
+                                "example": "user"
+                            },
+                            "active": {
+                                "type": "boolean",
+                                "example": true
+                            },
+                            "_id": {
+                                "type": "string",
+                                "example": "630a782bc9f52bce78d49c51"
+                            },
+                            "__v": {
+                                "type": "number",
+                                "example": 0
+                            }
+                        }
+                    }
+                }
+            },
+            "File": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "example": "Mohamed Magdi Mohamed.pdf"
+                    },
+                    "size": {
+                        "type": "number",
+                        "example": 68311
+                    },
+                    "uuid": {
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "6c1d02e5-349f-401b-aa87-2f58f9e38ae0"
+                    },
+                    "mimetype": {
+                        "type": "string",
+                        "example": "application/pdf"
+                    },
+                    "privacy": {
+                        "type": "string",
+                        "example": "public"
+                    },
+                    "userId": {
+                        "type": "string",
+                        "example": "63432a9407e09732b034ecad"
+                    },
+                    "uploadedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2022-10-29T09:58:44.918Z"
+                    },
+                    "_id": {
+                        "type": "string",
+                        "example": "635cf979bbcd7202f8216885"
+                    },
+                    "__v": {
+                        "type": "number",
+                        "example": 0
+                    }
+                }
+            }
+        },
+        "securitySchemes": {
+            "cookieAuth": {
+                "type": "apiKey",
+                "in": "cookie",
+                "name": "jwt"
+            }
+        }
+    }
+}
