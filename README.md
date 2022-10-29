@@ -1,21 +1,22 @@
-# RESTful API Node Server Boilerplate
+# RESTful Cloud Storage API
+
+RESTful cloud storage server built with express that uses [Firebase  Cloud Storage](https://firebase.google.com/docs/storage) as cloud provider.
 
 ## Table of Contents
-- [Installation](#installation)
-- [Features](#features)
-- [Commands](#commands)
-- [Project Structure](#project-structure)
-- [API Documentation](#api-documentation)
-- [Error Handling](#error-handling)
-- [Authorization](#authorization)
+-   [Installation](#installation)
+-   [Features](#features)
+-   [Commands](#commands)
+-   [Project Structure](#project-structure)
+-   [API Documentation](#api-documentation)
 
 ## Installation
 
 Clone the repo:
 
 ```bash
-git clone https://github.com/MuhamedMagdi/express-boilerplate.git
+git https://github.com/MuhamedMagdi/CloudStorage.git
 ```
+
 Install the dependencies:
 
 ```bash
@@ -27,18 +28,15 @@ Set the environment variables:
 ```bash
 cp .env.example .env
 
-# open .env and modify the environment variables (if needed)
+# open .env and modify the environment variables
 ```
 
 ## Features
-- **NoSQL database**: [MongoDB](https://www.mongodb.com) object data modeling using [Mongoose](https://mongoosejs.com)
-- **Authentication and authorization**
-- **Error handling**: centralized error handling mechanism
-- **API documentation**: [Postman](https://www.postman.com/) documentation
-- **Santizing**: sanitize request data against xss and query injection
-- **Docker support**
-- **Linting**: with [ESLint](https://eslint.org) and [Prettier](https://prettier.io)
 
+-   **Authentication and Authorization**
+-   **File CRUD**
+-   **API documentation**: [swagger](https://www.swagger.io/) documentation
+-   **Dockerized**
 ## Commands
 
 Running locally:
@@ -54,6 +52,7 @@ npm start
 ```
 
 Docker:
+
 ```bash
 # building the server image
 sudo docker build -t server:v1 .
@@ -63,6 +62,7 @@ sudo docker-compose up
 ```
 
 Linting:
+
 ```bash
 # run ESLint
 npm run lint:check
@@ -89,43 +89,6 @@ src/
 └── utils         # General purpose utility function and classes
 ```
 
-
 ## API Documentation
 
-Go [here](https://documenter.getpostman.com/view/15164367/VUxKSUAx) to view the list of available APIs and their specifications.
-
-## Error Handling
-The app has a centralized error handling mechanism.
-
-Controllers should try to catch the errors and forward them to the error handling middleware (by calling `next(error)`). For convenience, you can also wrap the controller inside the catchAsync utility wrapper, which forwards the error.
-
-```javascript
-const catchAsync = require('../utils/catchAsync');
-const AppError = require('../utils/appError');
-
-const controller = catchAsync(async (req, res, next) => {
-  // this error will be forwarded to the error handling middleware
-  next(new AppError('your error message', your_status_code));
-});
-```
-When running in development mode, the error response also contains the error stack.
-
-
-## Authorization
-
-Use ``protect`` middleware protect certain route to only logged in users.
-
-``` javascript
-const { protect } = require('../controllers/authController');
-
-router.post('/some-route-you-want-to-protect', protect, someController);
-```
-
-Use ``restrictTo`` middleware to restrict certain route to specific logged in users, ``restrictTo`` should always be used after the ``protect`` middleware.
-
-``` javascript
-const { protect, restrictTo } = require('../controllers/authController');
-
-router.post('/some-route-you-want-to-give-access-only-to-admins-and-managers', protect, restrictTo('admin', 'manager'), someController);
-
-```
+Go to `/api/v1/api-docs` view the list of available APIs endpoints and their specifications.-
