@@ -168,18 +168,9 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
 });
 
 exports.deactivate = catchAsync(async (req, res, next) => {
-    const { password } = req.body;
-    const user = await User.findById(req.user.id).select('+password +active');
-    if (!password) {
-        return next(
-            new AppError(
-                'Please provide your password to deactivate you account',
-                400
-            )
-        );
-    }
-    if (!(await user.correctPassword(password, user.password))) {
-        return next(new AppError('Incorrect password', 401));
+    const user = await User.findById(req.user.id).select('+password');
+    if(!user) {
+        next(new AppError('User not found', 404));
     }
     user.active = false;
     user.save({ validateBeforeSave: false });
@@ -187,18 +178,18 @@ exports.deactivate = catchAsync(async (req, res, next) => {
 });
 
 exports.activate = catchAsync(async (req, res, next) => {
-    const { email, password } = req.body;
-    if (!email || !password) {
+    const { username, password } = req.body;
+    if (!username || !password) {
         return next(new AppError('Please provide email and password', 400));
     }
     const user = await User.findOneAndUpdate(
-        { email },
+        { username },
         { active: true },
         { new: true }
     ).select('+password');
     if (!user || !(await user.correctPassword(password, user.password))) {
-        await User.findOneAndUpdate({ email }, { active: false });
-        return next(new AppError('Incorrect email or password'));
+        await User.findOneAndUpdate({ username }, { active: false });
+        return next(new AppError('Incorrect username or password'));
     }
     res.status(200).json({
         status: 'success',
